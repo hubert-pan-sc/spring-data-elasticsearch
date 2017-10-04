@@ -78,6 +78,10 @@ import org.springframework.data.elasticsearch.annotations.Mapping;
 import org.springframework.data.elasticsearch.annotations.Setting;
 import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
 import org.springframework.data.elasticsearch.core.aggregation.impl.AggregatedPageImpl;
+import org.springframework.data.elasticsearch.core.bulk.BulkResponseMapper;
+import org.springframework.data.elasticsearch.core.bulk.BulkResponsePage;
+import org.springframework.data.elasticsearch.core.bulk.response.BulkGenericResponse;
+import org.springframework.data.elasticsearch.core.bulk.response.BulkGenericResponseInterface;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.convert.MappingElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.facet.FacetRequest;
@@ -594,6 +598,16 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 		checkForBulkUpdateFailure(bulkRequest.execute().actionGet());
 	}
 
+	public BulkResponsePage<BulkGenericResponseInterface> bulkIndexWithResponse(List<IndexQuery> queries, BulkResponseMapper bulkResponseMapper){
+		BulkRequestBuilder bulkRequest = client.prepareBulk();
+		for (IndexQuery query : queries) {
+			bulkRequest.add(prepareIndex(query));
+		}
+		BulkResponse bulkResponse = bulkRequest.get();
+		BulkResponsePage<BulkGenericResponseInterface> bulkResponsePage = bulkResponseMapper.map(bulkResponse);
+		return bulkResponsePage;
+	}
+
 	@Override
 	public void bulkUpdate(List<UpdateQuery> queries) {
 		BulkRequestBuilder bulkRequest = client.prepareBulk();
@@ -601,6 +615,16 @@ public class ElasticsearchTemplate implements ElasticsearchOperations, Applicati
 			bulkRequest.add(prepareUpdate(query));
 		}
 		checkForBulkUpdateFailure(bulkRequest.execute().actionGet());
+	}
+
+	public BulkResponsePage<BulkGenericResponseInterface> bulkUpdateWithResponse(List<UpdateQuery> queries, BulkResponseMapper bulkResponseMapper){
+		BulkRequestBuilder bulkRequest = client.prepareBulk();
+		for (UpdateQuery query : queries) {
+			bulkRequest.add(prepareUpdate(query));
+		}
+		BulkResponse bulkResponse = bulkRequest.get();
+		BulkResponsePage<BulkGenericResponseInterface> bulkResponsePage = bulkResponseMapper.map(bulkResponse);
+		return bulkResponsePage;
 	}
 
 	private void checkForBulkUpdateFailure(BulkResponse bulkResponse) {

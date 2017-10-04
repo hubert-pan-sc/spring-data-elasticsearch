@@ -20,6 +20,9 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.metadata.AliasMetaData;
 import org.elasticsearch.common.Nullable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.elasticsearch.core.bulk.BulkResponseMapper;
+import org.springframework.data.elasticsearch.core.bulk.BulkResponsePage;
+import org.springframework.data.elasticsearch.core.bulk.response.BulkGenericResponseInterface;
 import org.springframework.data.elasticsearch.core.convert.ElasticsearchConverter;
 import org.springframework.data.elasticsearch.core.mapping.ElasticsearchPersistentEntity;
 import org.springframework.data.elasticsearch.core.query.*;
@@ -372,12 +375,16 @@ public interface ElasticsearchOperations {
 	 */
 	void bulkIndex(List<IndexQuery> queries);
 
+	BulkResponsePage<BulkGenericResponseInterface> bulkIndexWithResponse(List<IndexQuery> queries, BulkResponseMapper bulkResponseMapper);
+
 	/**
 	 * Bulk update all objects. Will do update
 	 *
 	 * @param queries
 	 */
 	void bulkUpdate(List<UpdateQuery> queries);
+
+	BulkResponsePage<BulkGenericResponseInterface> bulkUpdateWithResponse(List<UpdateQuery> queries, BulkResponseMapper bulkResponseMapper);
 
 	/**
 	 * Delete the one object with provided id
